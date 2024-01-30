@@ -1,0 +1,2 @@
+emgVal|0
+microStatus|0
