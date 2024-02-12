@@ -32,6 +32,7 @@ function heightLoop(start_time, time_step, time_scale) {
   let yi = 0;
   let vi = 50;
   let new_y;
+  let new_x;
 
   // Limited Scope for getNewHeight() : limits use of global variables
   function getNewHeight(start_time) {
@@ -44,11 +45,23 @@ function heightLoop(start_time, time_step, time_scale) {
     return new_y;
   }
 
+  function getNewDistance(start_time) {
+
+    // Time Scale used to slow down the simulation
+    let localTime = (Date.now() - start_time) / time_scale;
+
+    // Update final positions
+    let new_x = localTime * vi;
+    return new_x;
+  }
+
   // SetInterval used as constant time delayed loop
   let timerID = setInterval(() => {
 
     // Calculate New Height
     new_y = getNewHeight(start_time);
+
+    new_x = getNewDistance(start_time);
 
     // Exit Handling
     if (new_y < 0) {
@@ -59,7 +72,7 @@ function heightLoop(start_time, time_step, time_scale) {
 
 
     // Update Position of Arrow
-    document.getElementById('arrowObj').style="position:relative; top:" + -new_y + "px;";
+    document.getElementById('arrowObj').style="position:relative; top:" + -new_y + "px; left: " + new_x + "px;";
 
   }, time_step);
 }
