@@ -14,6 +14,10 @@ function App() {
   );
 }
 
+//document.getElementById('arrowObj').style="position:absolute; top:" + 300 + "px; left: " + 400 + "px;";
+
+let g_in_flight = false;
+
 function handleClick() {
 
   // THESE CHANGE RESOLUTION AND ANIMATION SPEED
@@ -24,7 +28,11 @@ function handleClick() {
   const start_time = Date.now();
 
   // Continuously update the height
-  heightLoop(start_time, time_step, time_scale);
+  if (!g_in_flight) {
+    g_in_flight = true;
+    heightLoop(start_time, time_step, time_scale);
+    
+  }
 }
 
 function heightLoop(start_time, time_step, time_scale) {
@@ -34,6 +42,9 @@ function heightLoop(start_time, time_step, time_scale) {
   let vi = 40;
   let new_y;
   let new_x;
+  let current_vx = vi;
+  let current_vy = vi;
+  let angle = 0;
 
   // Limited Scope for getNewHeight() : limits use of global variables
   function getNewHeight(start_time) {
@@ -70,6 +81,15 @@ function heightLoop(start_time, time_step, time_scale) {
     //}
   }
 
+  function getNewVY(start_time) {
+    // Time Scale used to slow down the simulation
+    let localTime = (Date.now() - start_time) / time_scale;
+
+    // Update final positions
+    let new_vy = vi - 9.8 * localTime;
+    return new_vy;
+  }
+
   // SetInterval used as constant time delayed loop
   let timerID = setInterval(() => {
 
@@ -77,6 +97,9 @@ function heightLoop(start_time, time_step, time_scale) {
     new_y = getNewHeight(start_time);
 
     new_x = getNewDistance(start_time);
+    current_vx = vi;
+    current_vy = getNewVY(start_time);
+    angle = -Math.atan(current_vy / current_vx) * 180 / Math.PI;
 
     checkIfOverlapping();
 
@@ -84,12 +107,17 @@ function heightLoop(start_time, time_step, time_scale) {
     if (new_y < -300) {
       clearInterval(timerID);
       new_y = -300;
+      g_in_flight = false;
     }
-    console.log(new_y);
+    //console.log(new_y);
+    console.log(`${angle}, ${current_vy}`);
 
 
     // Update Position of Arrow
-    document.getElementById('arrowObj').style="position:absolute; top:" + -new_y + "px; left: " + new_x + "px;";
+    const the_arrow = document.getElementById('arrowObj');
+    the_arrow.style="position:absolute; top:" + -new_y + "px; left: " + new_x + "px;"
+    // Rotate element by 90 degrees clockwise
+    the_arrow.style.transform = "rotate(" + angle + "deg)";
 
   }, time_step);
 }
