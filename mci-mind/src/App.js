@@ -59,15 +59,33 @@ function heightLoop(start_time, time_step, time_scale) {
   function checkIfOverlapping() {
     let arrowObj = document.getElementById("arrowObj");
     var arrowObjPos = arrowObj.getBoundingClientRect();
-    //console.log(arrowObjPos.top, arrowObjPos.right, arrowObjPos.bottom, arrowObjPos.left);
+    console.log(arrowObjPos.top, arrowObjPos.right, arrowObjPos.bottom, arrowObjPos.left);
 
     let target = document.getElementById("target");
     var targetPos = target.getBoundingClientRect();
-    //console.log(targetPos.top, targetPos.right, targetPos.bottom, targetPos.left);
+    console.log(targetPos.top, targetPos.right, targetPos.bottom, targetPos.left);
     
-    //if(arrowObjPos.top <= targetPos.top) {
-
-    //}
+    if(arrowObjPos.top >= targetPos.top && 
+      arrowObjPos.right <= targetPos.right &&
+      arrowObjPos.bottom <= targetPos.bottom && 
+      arrowObjPos.left >= targetPos.left) {
+        let overlap = true;
+        console.log(overlap);
+        return overlap;
+    }
+    else if(((arrowObjPos.top <= targetPos.top && arrowObjPos.bottom >= targetPos.top) || 
+    (arrowObjPos.bottom >= targetPos.bottom && arrowObjPos.top <= targetPos.bottom)) &&
+    ((arrowObjPos.left <= targetPos.left && arrowObjPos.right >= targetPos.left) || 
+    (arrowObjPos.right >= targetPos.right && arrowObjPos.left <= targetPos.right)))  {
+      let overlap = true;
+      console.log(overlap);
+      return overlap;
+    }
+    else {
+      let overlap = false;
+      console.log(overlap);
+      return overlap;
+    }
   }
 
   // SetInterval used as constant time delayed loop
