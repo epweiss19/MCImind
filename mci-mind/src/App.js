@@ -9,6 +9,7 @@ function App() {
         </div>
         <div id="target"></div>
         <button onClick={handleClick}>Shoot</button>
+        <button>Make HTTP Request</button>
       </header>
     </div>
   );
@@ -39,7 +40,7 @@ function heightLoop(start_time, time_step, time_scale) {
 
   // Set Intial Conditions : Declare final positions
   let yi = -300;
-  let vi = 40;
+  let vi = 80;
   let new_y;
   let new_x;
   let current_vx = vi;
@@ -139,5 +140,30 @@ function heightLoop(start_time, time_step, time_scale) {
 
   }, time_step);
 }
+
+  function showPath() {
+
+  }
+
+// var socket;
+// this.socket = new WebSocket('ws://3.144.233.109:3000');
+
+// function getVelocityHTTP() {
+//   console.log("http function start");
+//   //this.socket = new WebSocket('ws://localhost:3000');
+
+//   //wait for socket connection to be established
+//   socket.onopen = () => {
+//     socket.send("<command name>");
+//     console.log("Connection msg sent");
+//   };
+
+//   socket.onmessage = (event) => {
+//     console.log(event.data);
+      
+//     //parse data received in message
+//   };
+  
+// }
 
 export default App;
