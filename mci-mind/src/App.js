@@ -8,7 +8,7 @@ function App() {
           {'>'}
         </div>
         <div id="target"></div>
-        <button onClick={handleClick}>Shoot</button>
+        <button onClick={handleClick} onMouseOver={drawTrajectory} onMouseLeave={hideTrajectory}>Shoot</button>
         <button>Make HTTP Request</button>
       </header>
     </div>
@@ -36,11 +36,13 @@ function handleClick() {
   }
 }
 
+let vi = 80;
+let yi = -300;
+
 function heightLoop(start_time, time_step, time_scale) {
 
   // Set Intial Conditions : Declare final positions
-  let yi = -300;
-  let vi = 80;
+
   let new_y;
   let new_x;
   let current_vx = vi;
@@ -141,9 +143,59 @@ function heightLoop(start_time, time_step, time_scale) {
   }, time_step);
 }
 
-  function showPath() {
+let drawn = false;
 
+function drawTrajectory() {
+
+  if (drawn) {
+    return;
   }
+  drawn = true;
+
+  let final_time_in_msec = 2 * vi / 9.81;
+  let tmp_x;
+  let tmp_y;
+
+  for (let time = 0; time < final_time_in_msec; time+=0.5) {
+    tmp_x = getNewDistance(time);
+    tmp_y = getNewHeight(time);
+    let elemDiv = document.createElement('div');
+    elemDiv.innerText = ".";
+    elemDiv.setAttribute("class", "trajectory");
+    elemDiv.style.cssText = "position:absolute; top:" + -tmp_y + "px; left: " + tmp_x + "px; font-size: 50px;";
+    document.body.appendChild(elemDiv);
+  }
+
+  function getNewHeight(htime) {
+
+    // Time Scale used to slow down the simulation
+    let localTime = (htime);
+
+    // Update final positions
+    let new_y = yi + vi * localTime - 0.5 * 9.8 * Math.pow(localTime, 2);
+    return new_y;
+  }
+
+  function getNewDistance(htime) {
+
+    // Time Scale used to slow down the simulation
+    let localTime = (htime);
+
+    // Update final positions
+    let new_x = 370 + localTime * vi;
+    return new_x;
+  }
+  
+}
+
+function hideTrajectory() {
+  let trajDots = document.getElementsByClassName("trajectory");
+  let i = 0;
+  while(trajDots[i] != null) {
+    trajDots[i].remove(); //second console output
+  }
+  drawn = false;
+}
 
 // var socket;
 // this.socket = new WebSocket('ws://3.144.233.109:3000');
