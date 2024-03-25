@@ -10,70 +10,35 @@ import {toggleRow, getRowStatus, setRow, increaseRow} from './apiFunctions.mjs'
 
 const clients = [];
 
-function parseString(inputString) {
-    const lettersMatch = inputString.match(/[a-zA-Z]+/);
-    const numbersMatch = inputString.match(/\d+/);
-  
-    const letters = lettersMatch ? lettersMatch[0] : '';
-    const numbers = numbersMatch ? parseInt(numbersMatch[0], 10) : 0;
-  
-    return {
-      letters: letters,
-      numbers: numbers
-    };
-  }
-
 wss.on('connection', (ws) => {
   console.log('Client connected');
   
+  try {
   ws.on('message', (message) => {
+    message = message.toString();
+    const regex = /\[([^\]]+)\]/; //matches items between square brackets
+    const result = message.match(regex);
+    //check if regex match
+    let command;
+    let data;
+    if(!result || result.length <= 1){
+      // console.log("Error: could not parse [command] format");
+      command = message;
+    } else {
+      command = result[1];
+      const bracketIndex = message.indexOf(']');
+      data = message.substring(bracketIndex + 1);
+    }
+
+    console.log(`Received: ${message}`);
     console.log(`Command: ${command}`);
-
-    const result = parseString(inputString);
-    console.log("Letters:", result.letters);
-    console.log("Numbers:", result.numbers);
       
-    switch(result.letters) {
-      case "m":
-        const currentTime = new Date();
-        setRow(1, currentTime, (err, microStatus) => {
-          if (err) {
-            console.error(`Error: ${err}`);
-          } else {
-            console.log(`Result: ${microStatus}`);
-            ws.send(`[micro]: ${microStatus}`);
-          }
-        }); 
-        break;
-      
-      case "micro_conn": {
-        getRowStatus(1, (err, microStatus) => {
-          if (err) {
-            console.error(`Error: ${err}`);
-          } else {
-            const currentTime = new Date();
-            const microTime = new Date(microStatus);
-            const timeDifference = Math.abs(currentTime - microTime);
-            console.log(`Got last micro time of ${microTime}`)
-            console.log(`Time difference: ${timeDifference}`);
-            if (timeDifference > 10000) {
-              console.log("The time difference is more than 10 seconds.");
-              console.log(`Result: ${0}`);
-              ws.send(`[micro_conn]: ${0}`);
-            } else {
-              console.log("The time difference is within 10 seconds.");
-              console.log(`Result: ${1}`);
-              ws.send(`[micro_conn]: ${1}`);
-            }
-          }
-        }); 
-        break;
-      }
-
+    switch(command) {
       case "sE": // set emg val
-        setRow(0, result.numbers, (err, emgVal) => {
+	console.log("going to set emg val now");
+        setRow(0, data, (err, emgVal) => {
           if (err) {
-            console.error(`Error: ${err}`);
+            console.error(`Error(here): ${err}`);
           } else {
             console.log(`Result: ${emgVal}`);
             ws.send(`${emgVal}`);
@@ -84,7 +49,7 @@ wss.on('connection', (ws) => {
       case "gE": // Get emg val
         getRowStatus(0, (err, emgVal) => {
           if (err) {
-            console.error(`Error: ${err}`);
+            console.error(`Error(here2): ${err}`);
           } else {
             console.log(`${emgVal}`);
             ws.send(`[emg val]: ${emgVal}`);
@@ -100,6 +65,9 @@ wss.on('connection', (ws) => {
   ws.on('close', () => {
       console.log('closing connection');
   });
+  } catch (e) {
+	console.log(`e: ${e}`);
+  }
 });
 
 server.listen(3000, () => {
