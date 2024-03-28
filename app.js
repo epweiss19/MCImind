@@ -70,7 +70,7 @@ wss.on('connection', (ws) => {
   }
 });
 
-server.listen(3000, () => {
+server.listen(8081, () => {
     console.log('Server listening on port 3000');
 });
 
