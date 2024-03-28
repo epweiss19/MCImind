@@ -1,24 +1,25 @@
 import './App.css';
-import hoop from "./Assets/BasketballHoop.jpg";
-import background from "./Assets/BBallCourt.jpg"
+import hoop from "./Assets/bBallHoop.webp";
+import ball from "./Assets/bBall.webp";
+import background from "./Assets/BBallCourt.jpg";
 
 function App() {
   return (
-    <div style={{ height: "100vh",
-                  width: "100vw",
-                  backgroundImage: `url(${background})`,
-                  backgroundSize: "contain",
-                  backgroundRepeat: "no-repeat",}}>
+    <div>
+      <div style={{ height: "100vh",
+                    width: "100vw",
+                    position:'absolute',
+                    backgroundImage: `url(${background})`,
+                    filter: 'grayscale(60%)',
+                    backgroundSize: "contain",
+                    zIndex: '-1',
+                    backgroundRepeat: "no-repeat",}}>
+      </div>
       <header className="App-header">
-        <div id="arrowObj">
-          {'>'}
-        </div>
-        <div>
-          <img src={hoop} width={200} height={200} alt="Basketball Hoop" />
-        </div>
-        <div id="target"></div>
+        <img src={ball} id="arrowObj"/>
+        <img id="target" src={hoop}/>
         <button onClick={handleClick} onMouseOver={drawTrajectory} onMouseLeave={hideTrajectory}>Shoot</button>
-        <button>Make HTTP Request</button>
+        <button onClick={getVelocityHTTP}>Make HTTP Request</button>
       </header>
     </div>
   );
@@ -27,8 +28,11 @@ function App() {
 //document.getElementById('arrowObj').style="position:absolute; top:" + 300 + "px; left: " + 400 + "px;";
 
 let g_in_flight = false;
+let shooting = false;
 
 function handleClick() {
+
+  shooting = true;
 
   // THESE CHANGE RESOLUTION AND ANIMATION SPEED
   const time_step   = 40;   // Decrease for smoother animation
@@ -82,18 +86,19 @@ function heightLoop(start_time, time_step, time_scale) {
   function checkIfOverlapping() {
     let arrowObj = document.getElementById("arrowObj");
     var arrowObjPos = arrowObj.getBoundingClientRect();
-    console.log(arrowObjPos.top, arrowObjPos.right, arrowObjPos.bottom, arrowObjPos.left);
+    //console.log(arrowObjPos.top, arrowObjPos.right, arrowObjPos.bottom, arrowObjPos.left);
 
     let target = document.getElementById("target");
     var targetPos = target.getBoundingClientRect();
-    console.log(targetPos.top, targetPos.right, targetPos.bottom, targetPos.left);
+    //console.log(targetPos.top, targetPos.right, targetPos.bottom, targetPos.left);
     
     if(arrowObjPos.top >= targetPos.top && 
       arrowObjPos.right <= targetPos.right &&
       arrowObjPos.bottom <= targetPos.bottom && 
       arrowObjPos.left >= targetPos.left) {
         let overlap = true;
-        console.log(overlap);
+        //console.log(overlap);
+        shooting = false;
         return overlap;
     }
     else if(((arrowObjPos.top <= targetPos.top && arrowObjPos.bottom >= targetPos.top) || 
@@ -101,12 +106,13 @@ function heightLoop(start_time, time_step, time_scale) {
     ((arrowObjPos.left <= targetPos.left && arrowObjPos.right >= targetPos.left) || 
     (arrowObjPos.right >= targetPos.right && arrowObjPos.left <= targetPos.right)))  {
       let overlap = true;
-      console.log(overlap);
+      //console.log(overlap);
+      shooting = false;
       return overlap;
     }
     else {
       let overlap = false;
-      console.log(overlap);
+      //console.log(overlap);
       return overlap;
     }
   }
@@ -140,7 +146,7 @@ function heightLoop(start_time, time_step, time_scale) {
       g_in_flight = false;
     }
     //console.log(new_y);
-    console.log(`${angle}, ${current_vy}`);
+    //console.log(`${angle}, ${current_vy}`);
 
 
     // Update Position of Arrow
@@ -171,7 +177,7 @@ function drawTrajectory() {
     let elemDiv = document.createElement('div');
     elemDiv.innerText = ".";
     elemDiv.setAttribute("class", "trajectory");
-    elemDiv.style.cssText = "position:absolute; top:" + -tmp_y + "px; left: " + tmp_x + "px; font-size: 50px;";
+    elemDiv.style.cssText = "position:absolute; top:" + -tmp_y + "px; left: " + tmp_x + "px; font-size: 70px;";
     document.body.appendChild(elemDiv);
   }
 
@@ -206,25 +212,39 @@ function hideTrajectory() {
   drawn = false;
 }
 
-// var socket;
-// this.socket = new WebSocket('ws://3.144.233.109:3000');
+ var socket = new WebSocket('ws://3.144.233.109:8081');
 
-// function getVelocityHTTP() {
-//   console.log("http function start");
-//   //this.socket = new WebSocket('ws://localhost:3000');
+ function getVelocityHTTP() {
+    let timer = setInterval(function () {
+      if(!shooting) {
+        //console.log("http function start");
+        //this.socket = new WebSocket('ws://localhost:3000');
 
-//   //wait for socket connection to be established
-//   socket.onopen = () => {
-//     socket.send("<command name>");
-//     console.log("Connection msg sent");
-//   };
+        //wait for socket connection to be established
+        //socket.onopen = () => {
+          socket.send("[gE]");
+          //console.log("Connection msg sent");
+        //};
 
-//   socket.onmessage = (event) => {
-//     console.log(event.data);
-      
-//     //parse data received in message
-//   };
-  
-// }
+        socket.onmessage = (event) => {
+          //console.log(event.data);
+          let messageBack = event.data.split(':');
+          messageBack = messageBack[1];
+          messageBack = JSON.parse(messageBack);
+          console.log(messageBack[0]);
+          if(messageBack[0] >= 150) {
+            console.log("shooting");
+            handleClick();
+          }
+          //vi = messageBack[0];
+          //console.log(vi)
+          //vi = vi/80 * 40;
+          //hideTrajectory();
+          //drawTrajectory();
+        };
+      }
+  }, 100);
+
+ }
 
 export default App;
