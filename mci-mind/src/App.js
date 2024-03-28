@@ -1,11 +1,20 @@
 import './App.css';
+import hoop from "./Assets/BasketballHoop.jpg";
+import background from "./Assets/BBallCourt.jpg"
 
 function App() {
   return (
-    <div className="App">
+    <div style={{ height: "100vh",
+                  width: "100vw",
+                  backgroundImage: `url(${background})`,
+                  backgroundSize: "contain",
+                  backgroundRepeat: "no-repeat",}}>
       <header className="App-header">
         <div id="arrowObj">
           {'>'}
+        </div>
+        <div>
+          <img src={hoop} width={200} height={200} alt="Basketball Hoop" />
         </div>
         <div id="target"></div>
         <button onClick={handleClick} onMouseOver={drawTrajectory} onMouseLeave={hideTrajectory}>Shoot</button>
@@ -36,7 +45,7 @@ function handleClick() {
   }
 }
 
-let vi = 80;
+let vi = 40;
 let yi = -300;
 
 function heightLoop(start_time, time_step, time_scale) {
@@ -157,8 +166,8 @@ function drawTrajectory() {
   let tmp_y;
 
   for (let time = 0; time < final_time_in_msec; time+=0.5) {
-    tmp_x = getNewDistance(time);
-    tmp_y = getNewHeight(time);
+    tmp_x = getNewDistance(time) + 5;
+    tmp_y = getNewHeight(time) + 25;
     let elemDiv = document.createElement('div');
     elemDiv.innerText = ".";
     elemDiv.setAttribute("class", "trajectory");
