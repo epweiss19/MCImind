@@ -35,16 +35,14 @@ wss.on('connection', (ws) => {
       
     switch(command) {
       case "sE": // set emg val
-	console.log("going to set emg val now");
-        setRow(0, data, (err, emgVal) => {
+	      console.log("going to set emg val now");
+        prependRow(0, data, (err, newMovementLogRow) => {
           if (err) {
-            console.error(`Error(here): ${err}`);
+            console.error(`Error: ${err}`);
           } else {
-            console.log(`Result: ${emgVal}`);
-            ws.send(`${emgVal}`);
+            console.log(`Result: ${newMovementLogRow}`);
           }
         }); 
-        break;
 
       case "gE": // Get emg val
         getRowStatus(0, (err, emgVal) => {
