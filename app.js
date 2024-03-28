@@ -6,7 +6,7 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
 
-import {toggleRow, getRowStatus, setRow, increaseRow} from './apiFunctions.mjs'
+import {toggleRow, getRowStatus, setRow, increaseRow, prependRow} from './apiFunctions.mjs'
 
 const clients = [];
 
